@@ -126,9 +126,6 @@ void ActivateBhopAfterDelay(int iSlot) {
         userRef.JumpsCount = 0;
         userRef.bOnCooldown = false;
         SetPlayerBhopState(iSlot, true);
-        char szBuffer[128];
-        snprintf(szBuffer, sizeof(szBuffer), g_pVIPCore->VIP_GetTranslate("BhopAvailable"), g_pVIPCore->VIP_GetClientFeatureInt(iSlot, "bhop_max_jumps"));
-        g_pUtils->PrintToCenter(iSlot, szBuffer);
         pActivationTimers[iSlot] = nullptr;
         return -1.0f;
     });
