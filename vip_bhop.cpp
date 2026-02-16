@@ -114,10 +114,6 @@ void ActivateBhopAfterDelay(int iSlot) {
     user.bOnCooldown = true;
     SetPlayerBhopState(iSlot, false);
 
-    char szBuffer[128];
-    snprintf(szBuffer, sizeof(szBuffer), g_pVIPCore->VIP_GetTranslate("BhopActivate"), g_pVIPCore->VIP_GetClientFeatureFloat(iSlot, "bhop_start_time"));
-    g_pUtils->PrintToCenter(iSlot, szBuffer);
-
     ClearPlayerTimers(iSlot);
 
     pActivationTimers[iSlot] = g_pUtils->CreateTimer(g_pVIPCore->VIP_GetClientFeatureFloat(iSlot, "bhop_start_time"), [iSlot]() -> float {
