@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
   release:
     types:
       - created
@@ -27,14 +28,14 @@ jobs:
 
     steps:
       - name: Generate build number
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'release' }}
         id: buildnumber
         uses: onyxmueller/build-tag-number@v1
         with:
           token: ${{ secrets.github_token }}
 
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up dependencies
         run: |
@@ -65,17 +66,19 @@ jobs:
         run: |
           mkdir build
           cd build
-          python3 ../configure.py -s cs2 --targets x86_64 --enable-optimize --hl2sdk-manifests=./hl2sdk-manifests --mms_path=$MMS_PATH --hl2sdk-root=$HL2SDK_ROOT
+          python3 ../configure.py -s cs2 --targets x86_64 --enable-optimize --hl2sdk-manifests=$MANIFEST_PATH --mms_path=$MMS_PATH --hl2sdk-root=$HL2SDK_ROOT
           ambuild
 
       - name: Package addon into ZIP
+        if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'release' }}
         run: |
           cd build/package/addons
           zip -r "${{ github.event.repository.name }}-v${{ steps.buildnumber.outputs.build_number }}-NovaHost.zip" .
           mv "${{ github.event.repository.name }}-v${{ steps.buildnumber.outputs.build_number }}-NovaHost.zip" "${GITHUB_WORKSPACE}/"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        if: ${{ github.event_name == 'release' }}
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.head_commit.message }}
+          tag_name: ${{ github.ref_name }}
           files: ${{ github.workspace }}/${{ github.event.repository.name }}-v${{ steps.buildnumber.outputs.build_number }}-NovaHost.zip
