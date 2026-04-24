@@ -76,6 +76,13 @@ jobs:
           zip -r "${{ github.event.repository.name }}-v${{ steps.buildnumber.outputs.build_number }}-NovaHost.zip" .
           mv "${{ github.event.repository.name }}-v${{ steps.buildnumber.outputs.build_number }}-NovaHost.zip" "${GITHUB_WORKSPACE}/"
 
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.repository.name }}-addons-${{ github.run_number }}
+          path: build/package/addons
+          if-no-files-found: error
+
       - name: Create GitHub Release
         if: ${{ github.event_name == 'release' }}
         uses: softprops/action-gh-release@v2
